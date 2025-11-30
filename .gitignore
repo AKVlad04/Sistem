@@ -1,0 +1,26 @@
+# --- Python & IDE ---
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+
+# --- Mediu Virtual (FOARTE IMPORTANT) ---
+# Nu vrem să încărcăm mii de fișiere de biblioteci
+.venv/
+venv/
+env/
+
+# --- Datele Masive (Imagini) ---
+# Ignorăm pozele brute și cele procesate
+data/raw/
+data/processed/
+data/train/
+data/validation/
+data/test/
+
+
+# --- Loguri și Fișiere Temporare ---
+data/logs/
+temp_upload.jpg
+*.log
+.DS_Store

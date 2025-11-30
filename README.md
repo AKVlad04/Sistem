@@ -40,27 +40,33 @@ project-name/
 
 ### 2.1 Sursa datelor
 
-* **Origine:** [Descriere sursă date - ex: senzori robot, dataset public, simulare]
-* **Modul de achiziție:** ☐ Senzori reali / ☐ Simulare / ☐ Fișier extern / ☐ Generare programatică
-* **Perioada / condițiile colectării:** [Ex: Noiembrie 2024 - Ianuarie 2025, condiții experimentale specifice]
+* Origine: Set de date public de imagini, destinat antrenării unui model de Clasificare a vehiculelor.
+* Modul de achiziție: Fișier extern
+* Perioada / condițiile colectării: Nu este specificat, dar setul de date trebuie să fie divers (varietate de unghiuri, iluminare zi/noapte, condiții meteo) pentru a asigura robustetea modelului CNN.
 
 ### 2.2 Caracteristicile dataset-ului
 
-* **Număr total de observații:** [Ex: 15,000]
-* **Număr de caracteristici (features):** [Ex: 12]
-* **Tipuri de date:** ☐ Numerice / ☐ Categoriale / ☐ Temporale / ☐ Imagini
-* **Format fișiere:** ☐ CSV / ☐ TXT / ☐ JSON / ☐ PNG / ☐ Altele: [...]
+* **Număr total de observații:** 9211
+* **Număr de caracteristici (features):** 640x640
+* **Tipuri de date: Imagini si Numerice**
+* **Format fișiere:** JPG, TXT
 
 ### 2.3 Descrierea fiecărei caracteristici
 
-| **Caracteristică** | **Tip** | **Unitate** | **Descriere** | **Domeniu valori** |
-|-------------------|---------|-------------|---------------|--------------------|
-| feature_1 | numeric | mm | [...] | 0–150 |
-| feature_2 | categorial | – | [...] | {A, B, C} |
-| feature_3 | numeric | m/s | [...] | 0–2.5 |
-| ... | ... | ... | ... | ... |
+|-------------------|---------|-------------|--------------------------|--------------------|
+| **Caracteristică**| **Tip** | **Unitate** |       **Descriere**      | **Domeniu valori** |
+|-------------------|---------|-------------|--------------------------|--------------------|
+|	            |         | 	    |                          |		    |
+|  Imagine Vehicul  |  Input  |   Pixeli    |Sursa principală de date, |      640x640       |
+|	            |         | 	    |cu rezoluție uniformă.    |		    |
+|-------------------|---------|-------------|--------------------------|--------------------|
+|	            |         | 	    |                          |		    |
+|   Etichetă YOLO   |  Label  |  Normalizat |Index clasă, x_center,    |       [0-4]        |
+|                   |         |             |y_center, lățime, înălțime|                    |
+|-------------------|---------|-------------|--------------------------|--------------------|
 
-**Fișier recomandat:**  `data/README.md`
+
+**Fișier recomandat: `data/README.md`**
 
 ---
 
@@ -68,22 +74,18 @@ project-name/
 
 ### 3.1 Statistici descriptive aplicate
 
-* **Medie, mediană, deviație standard**
-* **Min–max și quartile**
-* **Distribuții pe caracteristici** (histograme)
-* **Identificarea outlierilor** (IQR / percentile)
+* **Rezoluția imaginii:** Uniformă (640 x 640 pixels)
+* **Distribuția pe Clase:** Analiza frecvenței Indexurilor de Clasă (0, 1, 2, 3, 4) în întregul set.
+* Histograme
 
 ### 3.2 Analiza calității datelor
 
-* **Detectarea valorilor lipsă** (% pe coloană)
-* **Detectarea valorilor inconsistente sau eronate**
-* **Identificarea caracteristicilor redundante sau puternic corelate**
+* **Detectarea etichetelor inconsistente sau eronate**
+* **Identificarea imaginilor neclare sau obstruate**
 
 ### 3.3 Probleme identificate
 
-* [exemplu] Feature X are 8% valori lipsă
-* [exemplu] Distribuția feature Y este puternic neuniformă
-* [exemplu] Variabilitate ridicată în clase (class imbalance)
+*
 
 ---
 
@@ -92,44 +94,40 @@ project-name/
 ### 4.1 Curățarea datelor
 
 * **Eliminare duplicatelor**
-* **Tratarea valorilor lipsă:**
-  * Feature A: imputare cu mediană
-  * Feature B: eliminare (30% valori lipsă)
-* **Tratarea outlierilor:** IQR / limitare percentile
+* **Tratarea imaginilor corupte/outlier:** Eliminarea imaginilor neclare sau cu etichete YOLO eronate.
 
 ### 4.2 Transformarea caracteristicilor
 
-* **Normalizare:** Min–Max / Standardizare
-* **Encoding pentru variabile categoriale**
-* **Ajustarea dezechilibrului de clasă** (dacă este cazul)
+* **Extracția Etichetei **
+* **Redimensionare: ** Imaginile de 640 x 640 vor fi redimensionate la o dimensiune standardizată pentru CNN.
+* **Normalizare (Min–Max): ** Scalarea valorilor pixelilor de la 0-255 la 0-1.
 
 ### 4.3 Structurarea seturilor de date
 
-**Împărțire recomandată:**
-* 70–80% – train
-* 10–15% – validation
-* 10–15% – test
+**Împărțire**
+* 70% – train
+* 15% – validation
+* 15% – test
 
 **Principii respectate:**
-* Stratificare pentru clasificare
-* Fără scurgere de informație (data leakage)
-* Statistici calculate DOAR pe train și aplicate pe celelalte seturi
+* **Stratificare pentru clasificare: ** Împărțirea se face pe baza Clasei Dominante obținute, menținând proporțiile.
+* **Fără scurgere de informație: ** Parametrii de normalizare se calculează DOAR pe setul de train.
 
 ### 4.4 Salvarea rezultatelor preprocesării
 
 * Date preprocesate în `data/processed/`
-* Seturi train/val/test în foldere dedicate
-* Parametrii de preprocesare în `config/preprocessing_config.*` (opțional)
+* Seturi train/val/test în foldere dedicate, organizate după Clasa Dominantă (ex: `data/train/Autoturism/`)
 
 ---
 
 ##  5. Fișiere Generate în Această Etapă
 
 * `data/raw/` – date brute
-* `data/processed/` – date curățate & transformate
+* `data/processed/` – imaginile și etichetele finale
 * `data/train/`, `data/validation/`, `data/test/` – seturi finale
-* `src/preprocessing/` – codul de preprocesare
+* `src/preprocessing/` – codul Python care implementează logica de simplificare YOLO -> Clasificare
 * `data/README.md` – descrierea dataset-ului
+* `requirements.txt` - dependente Python
 
 ---
 
