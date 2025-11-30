@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Access</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏛️ UPB Smart Access</h1>
+        <p>Sistem AI de Control și Taxare Auto</p>
+    </header>
+
+    <div class="dashboard">
+
+        <div class="card upload-section">
+            <h2>📸 Punct de Control</h2>
+            <div class="preview-area" id="preview-container">
+                <p>Încarcă o imagine sau fă o poză</p>
+                <img id="image-preview" src="" alt="Previzualizare" style="display: none;">
+            </div>
+
+            <div class="controls">
+                <input type="file" id="file-input" accept="image/*" hidden>
+                <button class="btn primary" onclick="document.getElementById('file-input').click()">📂 Încarcă Foto</button>
+                <button class="btn success" onclick="processImage()">🔍 Verifică Acces</button>
+            </div>
+        </div>
+
+        <div class="card result-section">
+            <h2>🛑 Decizie Sistem</h2>
+            <div id="loading" class="hidden">Se analizează... 🤖</div>
+
+            <div id="result-box" class="hidden">
+                <div class="status-badge" id="status-badge">AȘTEPTARE</div>
+
+                <div class="details">
+                    <div class="detail-row">
+                        <span>Vehicul Detectat:</span>
+                        <strong id="res-vehicle">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Încredere AI:</span>
+                        <strong id="res-prob">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Taxă de Plată:</span>
+                        <strong id="res-fee" class="money">-</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Zonă / Notă:</span>
+                        <span id="res-zone">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card stats-section">
+            <h2>📊 Trafic Lunar</h2>
+            <ul id="stats-list">
+                <li>Se încarcă datele...</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
