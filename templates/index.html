@@ -3,40 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Campus Access</title>
+    <title>UPB Smart Access</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>🏛️ UPB Smart Access</h1>
-        <p>Sistem AI de Control și Taxare Auto</p>
+    <header class="app-header">
+        <div class="header-row">
+            <div class="header-title">
+                <h1>UPB Smart Access</h1>
+                <p>Sistem AI de Control și Taxare Auto</p>
+            </div>
+
+            <div class="header-actions">
+                <label class="toggle" title="Dark mode">
+                    <input id="theme-toggle" type="checkbox" onchange="toggleTheme()">
+                    <span class="toggle-track"></span>
+                    <span class="toggle-label">Dark mode</span>
+                </label>
+            </div>
+        </div>
     </header>
 
     <div class="dashboard">
 
         <div class="card upload-section">
-            <h2>📸 Punct de Control</h2>
+            <h2>Punct de Control</h2>
             <div class="preview-area" id="preview-container">
-                <p>Încarcă o imagine sau fă o poză</p>
+                <p>Încarcă o imagine pentru analiză</p>
                 <img id="image-preview" src="" alt="Previzualizare" style="display: none;">
             </div>
 
             <div class="controls">
                 <input type="file" id="file-input" accept="image/*" hidden>
-                <button class="btn primary" onclick="document.getElementById('file-input').click()">📂 Încarcă Foto</button>
-                <button class="btn success" onclick="processImage()">🔍 Verifică Acces</button>
+                <button class="btn primary" type="button" onclick="document.getElementById('file-input').click()">Încarcă Foto</button>
+                <button class="btn success" type="button" onclick="processImage()">Verifică Acces</button>
+                <button class="btn ghost" type="button" onclick="resetUI()">Reset</button>
             </div>
         </div>
 
         <div class="card result-section">
-            <h2>🛑 Decizie Sistem</h2>
-            <div id="loading" class="hidden">Se analizează... 🤖</div>
+            <h2>Decizie Sistem</h2>
+            <div id="loading" class="hidden">Se analizează...</div>
 
             <div id="result-box" class="hidden">
-                <div class="status-badge" id="status-badge">AȘTEPTARE</div>
+                <div class="status-badge" id="status-badge">-</div>
 
                 <div class="details">
                     <div class="detail-row">
@@ -59,8 +72,33 @@
             </div>
         </div>
 
+        <div class="card history-section">
+            <div class="history-header">
+                <h2>Istoric ultimele verificări</h2>
+                <button class="btn small ghost" type="button" onclick="refreshHistory()">Reîncarcă</button>
+            </div>
+
+            <div class="table-wrap">
+                <table class="history-table" aria-label="Istoric verificări">
+                    <thead>
+                    <tr>
+                        <th>Oră</th>
+                        <th>Tip</th>
+                        <th>Încredere</th>
+                        <th>Decizie</th>
+                    </tr>
+                    </thead>
+                    <tbody id="history-body">
+                    <tr>
+                        <td colspan="4" class="muted">Se încarcă...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="card stats-section">
-            <h2>📊 Trafic Lunar</h2>
+            <h2>Trafic Lunar</h2>
             <ul id="stats-list">
                 <li>Se încarcă datele...</li>
             </ul>
@@ -72,3 +110,4 @@
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
+

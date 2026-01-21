@@ -1,0 +1,13 @@
+{
+    "model": "optimized_model.keras",
+    "test_accuracy": 0.9228,
+    "test_f1_macro": 0.908,
+    "test_precision_macro": 0.9165,
+    "test_recall_macro": 0.9012,
+    "false_negative_rate": 0.0988,
+    "inference_latency_ms": 118,
+    "improvement_vs_baseline": {
+        "accuracy": "+18.26%",
+        "f1_score": "+20.15%"
+    }
+}

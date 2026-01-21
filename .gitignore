@@ -17,7 +17,7 @@ data/processed/
 data/train/
 data/validation/
 data/test/
-
+data/non_vehicle
 
 # --- Loguri și Fișiere Temporare ---
 data/logs/

@@ -1,0 +1,5 @@
+Exp#,Modificare,Accuracy,Loss,Timp antrenare
+exp1_baseline,Configuratia de referinta din Etapa 5,0.7337,0.7406,~5 min (Fast Prototyping)
+exp2_heavy_aug,Augmentari agresive (Lumina/Zoom) - Nivel 2,0.7119,0.8255,~5 min (Fast Prototyping)
+exp3_low_lr_deep,Fine-tuning adanc (50 straturi) cu LR mic,0.4556,1.5296,~5 min (Fast Prototyping)
+exp4_high_dropout,Regularizare crescuta (Dropout 0.6),0.7569,0.7213,~5 min (Fast Prototyping)
