@@ -62,9 +62,30 @@ async function processImage() {
     };
 }
 
+// --- LOGICA NOUĂ: MODUL STANDBY ---
+function setStandbyMode() {
+    // Afișăm cutia, dar în modul neutru
+    document.querySelector('.details').style.display = 'none';
+
+    badge.textContent = "📡 AȘTEPTARE DETECTARE...";
+    badge.className = "status-badge"; // Resetăm culorile
+    badge.style.backgroundColor = "#95a5a6"; // Gri
+    badge.style.animation = "pulse 2s infinite"; // Efect de pulsare (dacă ai adăugat CSS-ul)
+}
+
 // 3. Afișare Rezultate
 function displayResult(data) {
     resultBox.classList.remove('hidden');
+
+    // NOU: Dacă detectarea nu este validă (sub 75%), intrăm în Standby
+    if (data.valid_detection === false) {
+        setStandbyMode();
+        return; // Oprim execuția pe fluxul roșu/verde
+    }
+
+    // Flux Normal (Peste 75%)
+    document.querySelector('.details').style.display = 'block';
+    badge.style.animation = "none"; // Oprim pulsarea
 
     // Badge Logic
     if (data.Access_Decision.includes("ACCEPTAT")) {
@@ -82,7 +103,7 @@ function displayResult(data) {
     document.getElementById('res-zone').textContent = data.Zone + " " + (data.Notes || "");
 }
 
-// 4. Încărcare Statistici
+// 4. Încărcare Statistici (rămâne neschimbată)
 async function loadStats() {
     const list = document.getElementById('stats-list');
     try {

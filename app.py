@@ -3,39 +3,28 @@ import sys
 from flask import Flask, request, jsonify, render_template
 import base64
 
-# --- 1. CONFIGURARE CĂI (Abordare Directă) ---
+# --- 1. CONFIGURARE CĂI (Importuri Directe Robuste) ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Definim căile către sub-module
 ACCESS_CONTROL_DIR = os.path.join(current_dir, 'src', 'access_control')
 PREDICTION_SERVICE_DIR = os.path.join(current_dir, 'src', 'prediction_service')
 
-# Le adăugăm pe TOATE la sys.path pentru a putea importa direct fișierele
+# Adăugăm directoarele la sys.path pentru a putea importa modulele direct
 if ACCESS_CONTROL_DIR not in sys.path:
     sys.path.append(ACCESS_CONTROL_DIR)
 
 if PREDICTION_SERVICE_DIR not in sys.path:
     sys.path.append(PREDICTION_SERVICE_DIR)
 
-# Debugging: Afișăm ce am făcut
-print(f"DEBUG: Am adăugat la PATH: {ACCESS_CONTROL_DIR}")
-print(f"DEBUG: Am adăugat la PATH: {PREDICTION_SERVICE_DIR}")
-
-# --- 2. IMPORTURI LOCALE (Acum sunt directe) ---
+# --- 2. IMPORTURI LOCALE ---
 try:
-    # Acum importăm direct numele fișierului (fără prefixul folderului)
     from decision_logic import load_monthly_counts
     from predictor import predict_vehicle_access
 
     print("DEBUG: Importurile locale au reușit!")
 except ImportError as e:
     print(f"CRITIC: Eroare la importuri locale: {e}")
-    # Script de diagnosticare: Vedem ce fișiere există real
-    print(f"Verificare fișiere în {ACCESS_CONTROL_DIR}:")
-    if os.path.exists(ACCESS_CONTROL_DIR):
-        print(os.listdir(ACCESS_CONTROL_DIR))
-    else:
-        print("FOLDERUL NU EXISTĂ!")
     sys.exit(1)
 
 # --- 3. CONFIGURARE FLASK ---

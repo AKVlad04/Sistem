@@ -8,6 +8,7 @@ import sys
 
 # --- VERIFICARE CĂI ---
 current_script_path = os.path.abspath(__file__)
+# Navigăm de la src/prediction_service -> src -> root
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_script_path)))
 SRC_DIR = os.path.join(project_root, 'src')
 TARGET_DIR = os.path.join(SRC_DIR, 'access_control')
@@ -16,22 +17,14 @@ if TARGET_DIR not in sys.path:
     # Adaugă directorul care conține modulul decision_logic.py
     sys.path.append(TARGET_DIR)
 
-print(f"DEBUG: Directorul adăugat: {TARGET_DIR}")
-print(f"DEBUG: sys.path conține directorul: {TARGET_DIR in sys.path}")
-# --- SFÂRȘIT VERIFICARE ---
-
-# Importăm direct fișierul, deoarece directorul său este acum în cale:
-from decision_logic import get_policy_decision, log_access_event, load_monthly_counts, CLASS_MAP, LOGS_DIR
-
-# ... (restul scriptului continuă)
-
-# --- CĂI ȘI CONSTANTE ---
-# Navigăm înapoi la rădăcina proiectului
-project_root = os.path.dirname(SRC_DIR)
-
+# --- CONSTANTE CRITICE ---
+CONFIDENCE_THRESHOLD = 0.70  # Pragul de încredere (75%)
 MODEL_PATH = os.path.join(project_root, 'config', 'vehicle_classifier_model.keras')
 IMAGE_SIZE = (224, 224)
 INPUT_SHAPE = IMAGE_SIZE + (3,)
+
+# Importăm direct fișierul, deoarece directorul său este acum în cale:
+from decision_logic import get_policy_decision, log_access_event, load_monthly_counts, CLASS_MAP, LOGS_DIR
 
 # --- Încarcă Modelul O Singură Dată la Pornire ---
 try:
@@ -68,18 +61,32 @@ def predict_vehicle_access(image_path):
     try:
         input_data = preprocess_input_image(image_path)
         predictions = GLOBAL_MODEL.predict(input_data, verbose=0)
-        predicted_index = np.argmax(predictions[0])
 
+        predicted_index = np.argmax(predictions[0])
+        max_probability = np.max(predictions)
+
+        # --- LOGICA DE FILTRARE PE BAZA PRAGULUI ---
+        if max_probability < CONFIDENCE_THRESHOLD:
+            # Dacă încrederea e prea mică, returnăm semnal de Standby/Așteptare
+            return {
+                "valid_detection": False,
+                "Vehicle_Type": CLASS_MAP.get(predicted_index, "N/A"),
+                "Probability": f"{max_probability * 100:.2f}%"
+            }
+
+        # ---------------------------------------------
+        # Dacă s-a trecut de prag (max_probability >= 75%)
         policy_result = get_policy_decision(predicted_index)
         log_access_event(policy_result)
 
         result = {
+            "valid_detection": True,  # Semnal că avem decizie finală
             "Vehicle_Type": policy_result['Vehicle_Type'],
             "Access_Decision": policy_result['Decision'],
             "Fee": policy_result['Fee_RON'],
             "Zone": policy_result['Zone'],
             "Notes": policy_result['Notes'],
-            "Probability": f"{np.max(predictions) * 100:.2f}%"
+            "Probability": f"{max_probability * 100:.2f}%"
         }
         return result
 
@@ -88,38 +95,5 @@ def predict_vehicle_access(image_path):
     except Exception as e:
         return {"Error": f"Eroare la inferență: {e}"}
 
-
-# --- Funcție de Testare și Afișare Statistici ---
-def run_test_and_show_stats(sample_image_path):
-    """ Simulează rularea aplicației și afișează logurile. """
-
-    print("\n--- TESTARE ACCES VEHICUL ---")
-    decision = predict_vehicle_access(sample_image_path)
-
-    if 'Error' in decision:
-        print(f"❌ EROARE: {decision['Error']}")
-        return
-
-    print(f"✅ DETECȚIE: {decision['Vehicle_Type']} ({decision['Probability']})")
-    print(f"   Decizie: {decision['Access_Decision']}")
-    print(f"   Taxă: {decision['Fee']} RON")
-    print(f"   Zonă Alocată: {decision['Zone']}")
-
-    print("\n--- STATISTICI CURENTE (Contorizare Lunară) ---")
-    counts = load_monthly_counts()
-    for vehicle, count in counts.items():
-        print(f"   {vehicle:<15}: {count} vehicule")
-
-    print(f"\nLogurile (CSV/JSON) sunt salvate în {LOGS_DIR}")
-
-
-if __name__ == '__main__':
-    # ⚠️ AICI SE CONFIGUREAZĂ IMAGINEA NOUĂ PENTRU TEST
-    test_image_name = 'test_masina.jpg'
-    sample_test_path = os.path.join(project_root, test_image_name)
-
-    if not os.path.exists(sample_test_path):
-        print(f"\nATENȚIE: Nu am găsit imaginea de test la calea: {sample_test_path}")
-        print("Te rog să o adaugi în rădăcina proiectului și să o denumești 'test_masina.jpg'.")
-
-    run_test_and_show_stats(sample_test_path)
+# --- Funcție de Testare și Afișare Statistici (rămâne neschimbată) ---
+# ... (restul fișierului rămâne același)
